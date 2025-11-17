@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+
+{% block title %}Detection Results - Defect Detection System{% endblock %}
+
+{% block content %}
+<div class="results-container">
+    <div class="results-header">
+        <h2>Detection Results</h2>
+        <div class="export-buttons">
+            <a href="{{ url_for('generate_report', filename=filename) }}" class="btn btn-primary">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="7 10 12 15 17 10"></polyline>
+                    <line x1="12" y1="15" x2="12" y2="3"></line>
+                </svg>
+                PDF Report
+            </a>
+            <a href="{{ url_for('export_csv', filename=filename) }}" class="btn btn-export">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="7 10 12 15 17 10"></polyline>
+                    <line x1="12" y1="15" x2="12" y2="3"></line>
+                </svg>
+                Export CSV
+            </a>
+            <a href="{{ url_for('export_excel', filename=filename) }}" class="btn btn-export">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="7 10 12 15 17 10"></polyline>
+                    <line x1="12" y1="15" x2="12" y2="3"></line>
+                </svg>
+                Export Excel
+            </a>
+        </div>
+    </div>
+
+    <div class="results-content">
+        <div class="image-section">
+            <h3>Processed Image with Annotations</h3>
+            <div class="image-wrapper">
+                <img src="{{ url_for('static', filename='processed/' + filename) }}" alt="Processed Image" id="result-image">
+            </div>
+        </div>
+
+        <div class="detections-section">
+            <h3>Detected Defects</h3>
+            <div class="summary-card">
+                <h4>Summary</h4>
+                <p><strong>Total Defects:</strong> {{ results.defect_count }}</p>
+            </div>
+
+            {% if results.detections and results.defect_types %}
+            <div class="defect-type-breakdown">
+                <h4>Defect Type Breakdown</h4>
+                <div class="breakdown-list">
+                    {% for defect_type, count in results.defect_types.items() %}
+                    <div class="breakdown-item">
+                        <span class="defect-type">{{ defect_type }}</span>
+                        <span class="defect-count">{{ count }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="detections-list">
+                <h4>Detailed Detections</h4>
+                <div class="table-scroll">
+                    <table class="detections-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Type</th>
+                                <th>Confidence</th>
+                                <th>Location</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for det in results.detections %}
+                            <tr>
+                                <td>{{ loop.index }}</td>
+                                <td><span class="defect-badge defect-{{ det.type|lower|replace(' ', '-') }}">{{ det.type }}</span></td>
+                                <td>{{ "%.2f"|format(det.confidence) }}</td>
+                                <td>({{ det.bbox[0] }}, {{ det.bbox[1] }}) - ({{ det.bbox[2] }}, {{ det.bbox[3] }})</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            {% else %}
+            <div class="no-defects">
+                <p>No defects detected in this image.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="results-actions">
+        <a href="{{ url_for('upload') }}" class="btn btn-secondary">Upload Another Image</a>
+        <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">Back to Dashboard</a>
+    </div>
+</div>
+{% endblock %}
+

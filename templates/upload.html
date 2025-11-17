@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+
+{% block title %}Upload Image - Defect Detection System{% endblock %}
+
+{% block content %}
+<div class="upload-container">
+    <h2>Upload Image for Defect Detection</h2>
+    
+    <div class="upload-card">
+        <form method="POST" action="{{ url_for('upload') }}" enctype="multipart/form-data" id="upload-form">
+            <div class="upload-options">
+                <div class="upload-option">
+                    <label for="file" class="upload-label">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="17 8 12 3 7 8"></polyline>
+                            <line x1="12" y1="3" x2="12" y2="15"></line>
+                        </svg>
+                        <span>Choose File</span>
+                    </label>
+                    <input type="file" id="file" name="file" accept="image/*" style="display: none;" required>
+                    <small>Supported formats: PNG, JPG, JPEG, GIF, BMP (Max 16MB)</small>
+                </div>
+                <div class="upload-divider">
+                    <!-- <span>OR</span> -->
+                </div>
+                <!-- <div class="upload-option">
+                    <label for="camera" class="upload-label camera-label">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                            <circle cx="12" cy="13" r="4"></circle>
+                        </svg>
+                        <span>Capture from Camera</span>
+                    </label>
+                    <input type="file" id="camera" name="file" accept="image/*" capture="environment" style="display: none;">
+                    <small>Click to take a photo with your device camera</small>
+                </div> -->
+            </div>
+            <div id="preview-container" style="display: none; margin-top: 1.5rem;">
+                <img id="preview-image" src="" alt="Preview" style="max-width: 100%; border-radius: 12px; border: 1px solid #1f2536;">
+            </div>
+            <button type="submit" class="btn btn-primary" id="upload-btn" style="margin-top: 1.5rem; width: 100%;">
+                <span id="btn-text">Upload and Process</span>
+                <span id="btn-loading" style="display: none;">Processing...</span>
+            </button>
+        </form>
+    </div>
+
+    <div class="upload-info">
+        <h3>Instructions</h3>
+        <ul>
+            <li>Upload images of pipelines, building surfaces, or industrial structures</li>
+            <li>The system will automatically detect defects such as cracks, dents, and surface irregularities</li>
+            <li>Processing may take a few moments depending on image size</li>
+            <li>Results will be displayed with bounding boxes highlighting detected defects</li>
+        </ul>
+    </div>
+</div>
+
+<script>
+// Handle file selection
+document.getElementById('file').addEventListener('change', function(e) {
+    if (e.target.files && e.target.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(event) {
+            document.getElementById('preview-image').src = event.target.result;
+            document.getElementById('preview-container').style.display = 'block';
+        };
+        reader.readAsDataURL(e.target.files[0]);
+    }
+});
+
+// Handle camera capture
+document.getElementById('camera').addEventListener('change', function(e) {
+    if (e.target.files && e.target.files[0]) {
+        // Transfer file to main file input
+        const fileInput = document.getElementById('file');
+        const dataTransfer = new DataTransfer();
+        dataTransfer.items.add(e.target.files[0]);
+        fileInput.files = dataTransfer.files;
+        
+        // Show preview
+        const reader = new FileReader();
+        reader.onload = function(event) {
+            document.getElementById('preview-image').src = event.target.result;
+            document.getElementById('preview-container').style.display = 'block';
+        };
+        reader.readAsDataURL(e.target.files[0]);
+    }
+});
+
+// Handle form submission
+document.getElementById('upload-form').addEventListener('submit', function() {
+    const btn = document.getElementById('upload-btn');
+    const btnText = document.getElementById('btn-text');
+    const btnLoading = document.getElementById('btn-loading');
+    
+    btn.disabled = true;
+    btnText.style.display = 'none';
+    btnLoading.style.display = 'inline';
+});
+</script>
+{% endblock %}
+
