@@ -82,6 +82,31 @@ def logout():
     return redirect(url_for('login'))
 
 
+@app.route('/register', methods=['POST'])
+def register():
+    """User registration"""
+    username = request.form.get('username')
+    password = request.form.get('password')
+    confirm_password = request.form.get('confirm_password')
+
+    if not username or not password or not confirm_password:
+        flash('All fields are required', 'error')
+        return redirect(url_for('login'))
+
+    if password != confirm_password:
+        flash('Passwords do not match', 'error')
+        return redirect(url_for('login'))
+
+    if username in USERS:
+        flash('Username already exists', 'error')
+        return redirect(url_for('login'))
+
+    # Hash the password and add to users
+    USERS[username] = generate_password_hash(password, method='pbkdf2:sha256')
+    flash('Registration successful! Please log in.', 'success')
+    return redirect(url_for('login'))
+
+
 @app.route('/dashboard')
 def dashboard():
     """Main dashboard"""
